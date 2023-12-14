@@ -2,7 +2,6 @@ import stamina
 import pandas as pd
 import requests
 from typing import Tuple
-import re
 
 
 class OpenWeatherHandler:
@@ -21,12 +20,8 @@ class OpenWeatherHandler:
         except requests.exceptions.Timeout:
             return "Failed to get air quality. Request timed out and reached its retries limit.", pd.Series()
         except requests.exceptions.RequestException as e:
-            response_text = e.response.text if e.response is not None else ""
-            error_message = str(e)
-            # url_pattern = re.compile(r'https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)')
-            api_key_pattern = re.compile(r'&appid=([^&]+)$')
-            error_message = api_key_pattern.sub('&appid=***', error_message)
-            error_message += f"\nResponse: {response_text}"
+            response_text = getattr(e.response, 'text', "")
+            error_message = f"{str(e)}\nResponse: {response_text}".replace(self.__api_key, "***")
             return f"Failed to get air quality. Request error {error_message}", pd.Series()
 
         aq_mapping = {
