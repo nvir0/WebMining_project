@@ -1,7 +1,6 @@
 import os
-from dotenv import load_dotenv
-
 import pandas as pd
+from typing import Dict
 
 import stamina
 import pickle
@@ -10,15 +9,12 @@ import json
 from geopy.geocoders import Bing, Nominatim
 from geopy.exc import GeocoderTimedOut, GeocoderUnavailable
 
-load_dotenv()
-
-
 class CitiesHandler:
-    BING_API_KEY = os.getenv("BING_API_KEY")
-
-    def __init__(self):
+    def __init__(self, api_keys: Dict):
+        """api_keys = {"BING_API_KEY": "key"}"""
         self._cache_filepath = '_cache.pkl'
         self._cache = self._load_cache()
+        self.__api_keys = api_keys
 
     def _load_cache(self):
         if os.path.exists(self._cache_filepath):
@@ -31,13 +27,12 @@ class CitiesHandler:
         with open(self._cache_filepath, 'wb') as file:
             pickle.dump(self._cache, file)
 
-    def dump_cache(self, file_format):
+    def dump_cache(self, file_format: str):
         if file_format == 'csv':
             pd.DataFrame(self._cache).to_csv('dump.csv')
         if file_format == 'json':
             with open('dump.json', 'w') as json_file:
                 json.dump(self._cache, json_file, indent=2)
-
 
     def get_coordinates(self, query, service='nominatim'):
         if query in self._cache.keys():
@@ -48,7 +43,7 @@ class CitiesHandler:
         if service not in ['bing', 'nominatim']:
             raise ValueError('Wrong service')
         if service == 'bing':
-            service = Bing(self.BING_API_KEY)
+            service = Bing(self.__api_keys.get("BING_API_KEY"))
         if service == 'nominatim':
             service = Nominatim(user_agent="temp")
         geolocator = service
@@ -95,7 +90,7 @@ class CitiesHandler:
 
 
     @staticmethod
-    def get_cities_elevation():
+    def get_cities_wiki_1():
         url = 'https://en.wikipedia.org/wiki/List_of_cities_by_elevation'
         dfs = pd.read_html(url)
         cities = dfs[1]
