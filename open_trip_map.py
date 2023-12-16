@@ -35,7 +35,7 @@ class OpenTripMapHandler:
             response_text = getattr(e.response, 'text', "")
             error_message = f"{str(e)}\nResponse: {response_text}".replace(self.__api_key, "***")
             print(error_message)
-            return {}
+            return [{"name": None, "coords": None, "kinds": None}]
 
         data = response.json()
         pois = data['features']

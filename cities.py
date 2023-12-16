@@ -72,7 +72,7 @@ class CitiesHandler:
         return coordinates_dict
 
     def get_coordinates_df(self, iterable, **kwargs):
-        service = kwargs.get('service', None)
+        service = kwargs.get('service', 'nominatim')
         df_data = {'city': [],
                    'lat': [],
                    'lon': []}
@@ -108,8 +108,9 @@ class CitiesHandler:
                                                                           errors='coerce')
         cities.rename(columns={
             'Country/Territory': 'country',
-            'City Name/s': 'city'}, inplace=True)
-        cities = cities.loc[:, ['country', 'city', 'lat', 'lon']]
+            'City Name/s': 'city',
+            'Continental Region': 'continent'}, inplace=True)
+        cities = cities.loc[:, ['city', 'lat', 'lon','continent', 'country']]
         return cities
 
     @staticmethod
