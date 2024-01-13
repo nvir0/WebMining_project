@@ -118,7 +118,7 @@ class CitiesHandler:
         url = 'https://en.wikipedia.org/wiki/List_of_cities_in_the_European_Union_by_population_within_city_limits'
         dfs = pd.read_html(url)
         cities = dfs[0]
-        cities = cities.iloc[:, 1:3]
+        cities = cities.iloc[:, :2]
         cities.rename(columns={
             'City': 'city',
             'Member state': 'country'

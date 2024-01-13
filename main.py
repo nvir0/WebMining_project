@@ -14,7 +14,6 @@ from open_weather import OpenWeatherHandler
 from open_trip_map import OpenTripMapHandler
 
 
-
 def main():
     load_dotenv()
 
@@ -22,29 +21,30 @@ def main():
     bing_api_key = os.getenv("BING_API_KEY")
     ow_api_key = os.getenv("OPENWEATHER_API_KEY")
     otm_api_key = os.getenv("OPENTRIPMAP_API_KEY")
+
     c_handler = CitiesHandler(api_keys={"BING_API_KEY": bing_api_key})
     otm_handler = OpenTripMapHandler(otm_api_key)
     ow_handler = OpenWeatherHandler(api_key=ow_api_key)
 
     # GET CITIES COORDS
     eur_cities = c_handler.list_eur_cities_over_300() # df with city
-    # cities_df = c_handler.get_coordinates_df(eur_cities['city'] + " Europe")
-    # cities_df['city'] = cities_df['city'].str.replace(" Europe", "")
+    cities_df = c_handler.get_coordinates_df(eur_cities['city'] + " Europe", service='bing')
+    cities_df['city'] = cities_df['city'].str.replace(" Europe", "")
     # TEMPERATURE, AIR QUALITY
-    # cities_df['temperature'] = cities_df.apply(lambda x: ow_handler.get_temperature((x['lat'], x['lon'])), axis=1)
-    # cities_df['air_quality'] = cities_df.apply(lambda x: ow_handler.get_air_quality((x['lat'], x['lon']))[0], axis=1)
+    cities_df['temperature'] = cities_df.apply(lambda x: ow_handler.get_temperature((x['lat'], x['lon'])), axis=1)
+    cities_df['air_quality'] = cities_df.apply(lambda x: ow_handler.get_air_quality((x['lat'], x['lon']))[0], axis=1)
 
 
     # TEMPORARY
-    cities_df = pd.read_csv('temp2.csv').iloc[:,1:]  # TODO for demonstration purposes
+    # cities_df = pd.read_csv('temp2.csv').iloc[:,1:]  # TODO for demonstration purposes
     # END TEMPORARY
 
     # MAIN PAGE
     col1, col2 = st.columns([1, 2])
     selection = col1.radio("Select Temperature", ("Hot", "Cold"))
     num_cities = col2.slider("Select Number of Cities", min_value=1, max_value=len(cities_df), value=5)
-    # selected_cities['temperature'] = selected_cities.apply(lambda x: ow_handler.get_temperature((x['lat'], x['lon'])), axis=1)
     # selected_cities['air_quality'] = selected_cities.apply(lambda x: ow_handler.get_air_quality((x['lat'], x['lon']))[0], axis=1)
+    # selected_cities['temperature'] = selected_cities.apply(lambda x: ow_handler.get_temperature((x['lat'], x['lon'])), axis=1)
 
     if selection == "Hot":
         title = f"Top {num_cities} Hottest Cities"
